@@ -1,10 +1,10 @@
 import os
 
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect
 from werkzeug.utils import secure_filename
-from util import is_allowed
+from parser import is_allowed
 
-from . import app    # For application discovery by the 'flask' command.
+from . import app
 from parser import get_result
 
 files = []
@@ -14,13 +14,12 @@ results = {}
 @app.route('/', methods=['POST', 'GET'])
 def home():
     if request.method == 'POST':
-        # check if the post request has the file part
+        # check if the post request contains a file
         if 'file' not in request.files:
-            flash('No file part')
+            flash('The POST request doesn\'t contain a file')
             return redirect(request.url)
         file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
+        # if the user submits without selecting a file, the browser also submits an empty part without filename
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
@@ -29,8 +28,6 @@ def home():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             files.append(filename)
     return render_template('index.html', files=files)
-
-
     #return redirect(url_for('bla', filename=filename))
 
 
@@ -39,9 +36,6 @@ def result(filename):
     result = get_result(filename)
     return render_template('result.html', result=result)
 
-
-# Also, if you want to run the development server on a different IP address or port,
-# use the host and port command-line arguments, as with --host=0.0.0.0 --port=80.
 
 """
 How to:

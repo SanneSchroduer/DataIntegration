@@ -1,5 +1,5 @@
 import vcf
-vcf_reader = vcf.Reader(open('data/chr18_onlyintro.vcf', 'r'))
+vcf_reader = vcf.Reader(open('/home/sanne/Desktop/chr18_onlyintro.vcf', 'r'))
 for record in vcf_reader:
     print(record.alleles) #both alleles: ['A', G]
     print(record.INFO['rf_tp_probability'])
