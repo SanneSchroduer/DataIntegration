@@ -2,39 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="../static/result.css" rel="stylesheet">
+<!--    <link href="../static/result.css" rel="stylesheet">-->
+     <link href="../static/test.css" rel="stylesheet">
     <title>Result</title>
 </head>
 <body>
     <p>
         {% if result is defined %}
-        Your result is:
-    <hr>
+<!--        Your result is:-->
+
     <div>
-        <table class="header">
-            <tr>
+        <table>
+          <thead>
+            <tr class="header">
                 <th>Chromosome</th>
                 <th>Position</th>
                 <th>Id</th>
                 <th>Ref</th>
                 <th>Alt</th>
                 <th>Probability</th>
-            </tr> </table>
-    </div>
+            </tr>
+          </thead>
+          <tbody>
 
-    <div class="tableover">
-        <table>
-            {% for variant in result %}
-            <tr>
-                <th>{{variant[0]}}</th>
-                <th>{{variant[1]}}</th>
-                <th>{{variant[2]}}</th>
-                <th>{{variant[3]}}</th>
-                <th>{{variant[4]}}</th>
-                <th>{{variant[5]}}</th>
+             {% for variant in result %}
+            <tr class="tableover">
+                <td>{{variant[0]}}</td>
+                <td>{{variant[1]}}</td>
+                <td>{{variant[2]}}</td>
+                <td>{{variant[3]}}</td>
+                <td>{{variant[4]}}</td>
+                <td>{{variant[5]}}</td>
             </tr>
             {% endfor %}
-
+          </tbody>
         </table>
     {% endif %}
     </div>

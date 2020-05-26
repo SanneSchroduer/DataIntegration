@@ -1,0 +1,37 @@
+body {
+    background: rgb(190,224,228);
+  background: linear-gradient(90deg, rgba(190,224,228,1) 5%, rgba(121,191,200,1) 17%, rgba(91,162,190,1) 40%, rgba(54,120,145,1) 76%, rgba(19,105,122,1) 89%, rgba(8,70,83,1) 100%);
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+table {
+  text-align: left;
+  position: relative;
+  border-collapse: collapse; 
+}
+
+th, td {
+  padding: 0.25rem;
+}
+
+tr.header th {
+  background: cadetblue;
+  color: white;
+}
+
+th {
+  background: white;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+}
+
+tr.tableover {
+  overflow-y: scroll;
+  overflow-x: auto;
+}
+
+tr:hover {background-color: lightblue;}
