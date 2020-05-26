@@ -2,9 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="../static/result.css" rel="stylesheet">
     <title>Result</title>
 </head>
 <body>
-    <p>Your result is: {{ result }}</p>
+    <p>
+        {% if result is defined %}
+        Your result is:
+    <hr>
+    <div>
+        <table class="header">
+            <tr>
+                <th>Chromosome</th>
+                <th>Position</th>
+                <th>Id</th>
+                <th>Ref</th>
+                <th>Alt</th>
+                <th>Probability</th>
+            </tr> </table>
+    </div>
+
+    <div class="tableover">
+        <table>
+            {% for variant in result %}
+            <tr>
+                <th>{{variant[0]}}</th>
+                <th>{{variant[1]}}</th>
+                <th>{{variant[2]}}</th>
+                <th>{{variant[3]}}</th>
+                <th>{{variant[4]}}</th>
+                <th>{{variant[5]}}</th>
+            </tr>
+            {% endfor %}
+
+        </table>
+    {% endif %}
+    </div>
+    </p>
+
 </body>
 </html>
