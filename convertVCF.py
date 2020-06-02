@@ -10,6 +10,7 @@ for record in vcf_reader:
           record.ALT,
           record.INFO['AF']
           )
+    print(40*"-")
 
 ##  DATABASE
 # downloaden mysql server docker image
