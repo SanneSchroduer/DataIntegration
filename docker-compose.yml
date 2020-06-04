@@ -1,20 +1,23 @@
 version: '3'
 services:
+  database:
+    image: mysql:8.0.17
+    environment:
+      MYSQL_DATABASE: dnaVariants
+      MYSQL_USER: root
+      MYSQL_PASSWORD: helloworld
+    ports:
+      - "3306:3306"
+    volumes:
+      - .:/database
+    restart: always
   api:
     build: ./api
-    links:
+    depends_on:
       - database
     ports:
       - "5000:5000"
     volumes:
       - .:/api
-  database:
-    image: mysql:8.0.17
-    environment:
-      MYSQL_ROOT_PASSWORD: helloworld
-      MYSQL_DATABASE: dnaVariants
-    ports:
-      - "3306:3306"
-    volumes:
-    - .:/database
+
 

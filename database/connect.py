@@ -4,22 +4,25 @@ from mysql.connector import errorcode
 
 try:
     connection = mysql.connector.connect(host='127.0.0.1',
-                                         port='3308',
-                                         database='testapp',
+                                         port='3306',
+                                         database='dnaVariants',
                                          user='root',
                                          password='helloworld',
                                          auth_plugin='mysql_native_password')
 
-    mySql_insert_query = """INSERT INTO reference_nucleotide(Chromosome, Position, ID, Reference)
-                                    VALUES (18, 47348, 'rs126', 'C');"""
+    mySql_insert_query = """SELECT * FROM referenceNucleotide"""
+    # mySql_insert_query = """SELECT count(table_name) > 0
+    # FROM information_schema.tables;"""
+    # mySql_insert_query = """INSERT INTO reference_nucleotide(Chromosome, Position, ID, Reference)
+    #                                 VALUES (18, 47348, 'rs126', 'C');"""
 
-    mySql_insert_query2 = """INSERT INTO variant(Position, Alternate, RFP, AlternateAlleleFrequency, VariantType, AlleleType)
-                                    VALUES (47348, 'CT', 0.9573, 0.00067423, 'mixed', 'ins');"""
+    # mySql_insert_query2 = """INSERT INTO variant(Position, Alternate, RFP, AlternateAlleleFrequency, VariantType, AlleleType)
+    #                                 VALUES (47348, 'CT', 0.9573, 0.00067423, 'mixed', 'ins');"""
 
     cursor = connection.cursor()
-    cursor.execute(mySql_insert_query2)
-    connection.commit()
-    print(cursor.rowcount, "Record inserted successfully into gene_info table")
+    cursor.execute(mySql_insert_query)
+    #connection.commit()
+    print("Query executed")
     cursor.close()
 
 except mysql.connector.Error as error:

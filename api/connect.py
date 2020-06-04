@@ -9,7 +9,7 @@ try:
                                          user='root',
                                          password='helloworld',
                                          auth_plugin='mysql_native_password')
-
+    print(connection)
     mySql_insert_query = """SELECT * FROM referenceNucleotide"""
 
     cursor = connection.cursor()
@@ -19,4 +19,19 @@ try:
     cursor.close()
 
 except mysql.connector.Error as error:
-    print("Failed to insert record into gene_info table {}".format(error))
+    print("Failed to insert record into table {}".format(error))
+
+''' 
+mysql:
+    build: mysql-server
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: 0.0.0.0
+      MYSQL_USER: testing
+      MYSQL_PASSWORD: testing
+    ports:
+      - "3306:3306"
+      
+return mysql.connector.connect(user='testing', host='mysql', port='3306', password='testing', database='test')
+'''
