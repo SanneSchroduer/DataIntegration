@@ -3,7 +3,7 @@ from mysql.connector import Error
 from mysql.connector import errorcode
 
 try:
-    connection = mysql.connector.connect(host='127.0.0.1',
+    connection = mysql.connector.connect(host='database',
                                          port='3306',
                                          database='dnaVariants',
                                          user='root',
