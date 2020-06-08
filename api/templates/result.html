@@ -6,11 +6,9 @@
     <title>Result</title>
 </head>
 <body>
-    <p>
-        {% if result is defined %}
-<!--        Your result is:-->
-<!--        url_for('static', filename= 'test.csv') -->
-    <a class="download_button" href="{{ url_for('static', filename= file)}}">Download me!</a>
+<h1>These are your results</h1>
+    <p>{% if result is defined %}
+    <a class="download_button" href="{{ url_for('static', filename= file)}}">Download</a>
     <div>
         <table>
           <thead>
@@ -39,9 +37,6 @@
         </table>
     {% endif %}
     </div>
-
-
     </p>
-
 </body>
 </html>

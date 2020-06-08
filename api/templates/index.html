@@ -6,21 +6,25 @@
     <title>Home</title>
 </head>
 <body>
-    <p>Hello!</p>
+    <h1>Welcome to this gnomAD filter application for detecting malignant variants in chromosomes</h1>
 
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
+    <div class="upload-file">
+    <h3>Upload your gnomAD file</h3>
+    <h5>The file extension has to be one of the following: CSV or VCF. </h5>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
+      <input class="browse" type=file name=file>
       <input type=submit value=Upload>
     </form>
 
+    </div>
     <br>
 
     {% if files is defined %}
         {% for filename in files %}
-            <li>Get results for: <a href="/result/{{ filename }}">{{ filename }}</a></li>
-        {% endfor %}
+            <div class="get-result">
+                <p>Get results for: <a href="/result/{{ filename }}">{{ filename }}</a></p>
+            </div>
+    {% endfor %}
     {% endif %}
 
 </body>

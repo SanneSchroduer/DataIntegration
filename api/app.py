@@ -37,7 +37,6 @@ def home():
 def result(filename):
     input_data, filepath = get_result(filename)
     output_data, out_file = filter_malignant(input_data, filename)
-    print(out_file)
     return render_template('result.html', result=output_data, file=out_file)
 
 if __name__ == '__main__':

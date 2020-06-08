@@ -1,17 +1,18 @@
 body {
-    background: rgb(190,224,228);
-  background: linear-gradient(90deg, rgba(190,224,228,1) 5%, rgba(121,191,200,1) 17%, rgba(91,162,190,1) 40%, rgba(54,120,145,1) 76%, rgba(19,105,122,1) 89%, rgba(8,70,83,1) 100%);
+  background: rgb(190,224,228);
   margin: 0;
   padding: 2rem;
   display: flex;
   flex-direction: column;
+  font-family: 'Arial';
 }
 
 table {
   text-align: left;
   width: 70%;
   position: relative;
-  border-collapse: collapse; 
+  border-collapse: collapse;
+  border: 1px solid cadetblue;
 }
 
 th, td {
@@ -35,7 +36,7 @@ tr.tableover {
   overflow-x: auto;
 }
 
-tr:hover {background-color: lightblue;}
+tr:hover {background-color: aliceblue;}
 
 .download_button {
   display: inline-block;
@@ -44,18 +45,17 @@ tr:hover {background-color: lightblue;}
   font-weight: 600;
   padding: 10px 20px;
   border-radius: 10px;
-  color: dodgerblue;
+  color: white;
   text-decoration: none;
-  border: 2px solid dodgerblue;
-  background: white;
+  background: cadetblue;
 }
 
 .download_button:hover {
   text-decoration: underline;
-  color: darkblue;
+  color: black;
 }
 
 .download_button:active {
-  color: rebeccapurple;
+  color: darkblue;
   font-weight: 500;
 }

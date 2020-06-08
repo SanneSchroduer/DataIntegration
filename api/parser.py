@@ -5,7 +5,7 @@ from mysql.connector import Error
 from mysql.connector import errorcode
 
 
-ALLOWED_EXTENSIONS = {'csv', 'json', 'vcf'}
+ALLOWED_EXTENSIONS = {'csv', 'vcf'}
 
 def is_allowed(filename):
     return '.' in filename and \
