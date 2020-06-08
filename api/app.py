@@ -7,7 +7,7 @@ from parser import is_allowed
 from flask import Flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'inbox'
-from parser import get_result
+from parser import get_result, filter_malignant
 
 files = []
 results = {}
@@ -35,10 +35,10 @@ def home():
 
 @app.route('/result/<filename>')
 def result(filename):
-    result = get_result(filename)
-    return render_template('result.html', result=result)
-
-
+    input_data, filepath = get_result(filename)
+    output_data, out_file = filter_malignant(input_data, filename)
+    print(out_file)
+    return render_template('result.html', result=output_data, file=out_file)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

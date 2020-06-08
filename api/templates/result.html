@@ -9,7 +9,8 @@
     <p>
         {% if result is defined %}
 <!--        Your result is:-->
-
+<!--        url_for('static', filename= 'test.csv') -->
+    <a class="download_button" href="{{ url_for('static', filename= file)}}">Download me!</a>
     <div>
         <table>
           <thead>
@@ -19,7 +20,7 @@
                 <th>Id</th>
                 <th>Ref</th>
                 <th>Alt</th>
-                <th>Probability</th>
+                <th>Frequency</th>
             </tr>
           </thead>
           <tbody>
@@ -31,13 +32,15 @@
                 <td>{{variant[2]}}</td>
                 <td>{{variant[3]}}</td>
                 <td>{{variant[4]}}</td>
-                <td>{{variant[5]}}</td>
+                <td>{{variant[9].split('=')[1]}}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
     {% endif %}
     </div>
+
+
     </p>
 
 </body>

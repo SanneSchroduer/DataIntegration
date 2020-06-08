@@ -1,39 +1,41 @@
 import mysql.connector
+
 from mysql.connector import Error
 from mysql.connector import errorcode
 
-try:
 
-    connection = mysql.connector.connect(host='database',
-                                         port='3306',
-                                         database='dnaVariants',
-                                         user='root',
-                                         password='helloworld')
+def connect_to_mysql(result):
+
+    records = []
+    try:
+        connection = mysql.connector.connect(host='127.0.0.1',
+                                             port='3306',
+                                             database='dnaVariants',
+                                             user='root',
+                                             password='helloworld')
 
 
-    print(connection)
-    # mySql_insert_query = """SELECT * FROM referenceNucleotide"""
-    #
-    # cursor = connection.cursor()
-    # cursor.execute(mySql_insert_query)
-    # connection.commit()
-    # print(cursor.rowcount, "Record inserted successfully into gene_info table")
-    # cursor.close()
+        cursor = connection.cursor(buffered=True, dictionary=True)
+        for variant in result:
+            select_id = """SELECT r.chromosome, r.position, r.reference, v.alternate
+                        FROM referenceNucleotide r
+                        INNER JOIN variant v
+                        ON r.id = v.id
+                        WHERE chromosome = %s
+                        AND position = %s
+                        AND reference = %s
+                        AND v.alternateAlleleFrequency < 0.1"""
+            condition_select_id = [variant[0], variant[1], variant[2]]
+            cursor.execute(select_id, (condition_select_id))
+            record = cursor.fetchone()
+            connection.commit()
 
-except mysql.connector.Error as error:
-    print("Error {}".format(error))
+            if record is not None:
+                records.append(record)
 
-''' 
-mysql:
-    build: mysql-server
-    environment:
-      MYSQL_DATABASE: test
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_HOST: 0.0.0.0
-      MYSQL_USER: testing
-      MYSQL_PASSWORD: testing
-    ports:
-      - "3306:3306"
-      
-return mysql.connector.connect(user='testing', host='mysql', port='3306', password='testing', database='test')
-'''
+        cursor.close()
+        return records
+
+    except mysql.connector.Error as error:
+        print("Error {}".format(error))
+

@@ -1,59 +1,83 @@
 import csv
+# from connect import connect_to_mysql
+import mysql.connector
+from mysql.connector import Error
+from mysql.connector import errorcode
+
 
 ALLOWED_EXTENSIONS = {'csv', 'json', 'vcf'}
-
-filename = '/home/sanne/Desktop/test.csv'
 
 def is_allowed(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_result(filename):
-    result = []
-    pos_list = []
-    filepath = 'inbox/'+filename
-    with open(filepath, 'r') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in csv_reader:
-            try:
-                chrom = row[0]
-                pos = row[1]
-                id = row[2]
-                ref = row[3]
-                alt = row[4]
-                prob = row[10].split('=')[1]
 
-                if pos in pos_list:
-                    print(pos)
-                pos_list.append(pos)
-                variant = [chrom, pos, id, ref, alt, prob]
-                result.append(variant)
-            except IndexError:
-                pass
-    #logic for comparing the input data against the database
-    #parsing the input file; extracting the chromosome, the postition, the nucleotide and the variant.
-    #possibly the probability score
+    output_data = []
+    try:
+        connection = mysql.connector.connect(host='127.0.0.1',
+                                             port='3306',
+                                             database='dnaVariants',
+                                             user='root',
+                                             password='helloworld')
 
-    return result
+
+
+        filepath = 'inbox/' + filename
+        with open(filepath, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row in csv_reader:
+                try:
+                    cursor = connection.cursor(buffered=True, dictionary=True)
+
+                    select_id = """SELECT r.chromosome, r.position, r.reference, v.alternate
+                                FROM referenceNucleotide r
+                                INNER JOIN variant v
+                                ON r.id = v.id
+                                WHERE chromosome = %s
+                                AND position = %s
+                                AND reference = %s
+                                AND v.alternateAlleleFrequency < 0.1"""
+                    condition_select_id = [row[0], row[1], row[3]]
+                    cursor.execute(select_id, (condition_select_id))
+                    record = cursor.fetchone()
+                    connection.commit()
+
+                    if record is not None:
+                        print(record)
+                        output_data.append(row)
+
+                    cursor.close()
+
+                except IndexError:
+                    csv_file.close()
+
+
+    except mysql.connector.Error as error:
+        print("Error {}".format(error))
+
+    return output_data, filepath
+
+def filter_malignant(output_data, filename):
+
+    print(output_data)
+    out_filename = filename.split('.')[0]+'_malignant.'+filename.split('.')[1]
+    out_file = 'static/'+out_filename
+
+    with open(out_file, "w") as csv_file:
+        csv_writer = csv.writer(csv_file, dialect = 'excel')
+        for row in output_data:
+            csv_writer.writerow(row)
+
+    return output_data, out_filename
+
+
+
 
 # filename = 'test.csv'
-# get_result(filename)
+# input_data, filepath = get_result(filename)
+# filter_malignant(input_data, filename)
 
 
-'''
-filename get_variants.py 
-e.g. chr18 get_variants.py
-
-get_variants.py: 
-- draait lokaal
-- leest input file in
-- stuurt request naar API (draait vanuit een docker container op 127.0.0.1:5000) met filenaam van input file
-- schrijft alle malign variants naar output file in directory van 
-
-output: chr18_malign
-'''
-#
-# for x in files:
-#     request(127.0.0.1:500, 'chr18')
 
 

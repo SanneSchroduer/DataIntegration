@@ -36,3 +36,26 @@ tr.tableover {
 }
 
 tr:hover {background-color: lightblue;}
+
+.download_button {
+  display: inline-block;
+  margin: 0;
+  font-size: 12pt;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: dodgerblue;
+  text-decoration: none;
+  border: 2px solid dodgerblue;
+  background: white;
+}
+
+.download_button:hover {
+  text-decoration: underline;
+  color: darkblue;
+}
+
+.download_button:active {
+  color: rebeccapurple;
+  font-weight: 500;
+}
