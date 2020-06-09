@@ -2,12 +2,12 @@ import os
 
 from flask import render_template, request, flash, redirect
 from werkzeug.utils import secure_filename
-from parser import is_allowed
+
 
 from flask import Flask
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'inbox'
-from parser import get_result, filter_malignant
+app = Flask(__name__, template_folder='../templates')
+app.config['UPLOAD_FOLDER'] = '../inbox'
+from util import is_allowed, get_db_result, write_output
 
 files = []
 results = {}
@@ -30,13 +30,12 @@ def home():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             files.append(filename)
     return render_template('index.html', files=files)
-    #return redirect(url_for('bla', filename=filename))
 
 
 @app.route('/result/<filename>')
 def result(filename):
-    input_data, filepath = get_result(filename)
-    output_data, out_file = filter_malignant(input_data, filename)
+    output_data, filepath = get_db_result(filename)
+    out_file = write_output(output_data, filename)
     return render_template('result.html', result=output_data, file=out_file)
 
 if __name__ == '__main__':

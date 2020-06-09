@@ -1,7 +1,7 @@
 version: '3'
 services:
   database:
-    image: mysql:8.0.17
+    build: ./database
     environment:
       MYSQL_DATABASE: dnaVariants
       MYSQL_USER: root
@@ -9,7 +9,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - .:/database
+      - /database:/database
     restart: always
   api:
     build: ./api
@@ -18,7 +18,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - .:/api
+      - ./vcf_data/:/api/vcf_data
     links:
       - database
 networks:

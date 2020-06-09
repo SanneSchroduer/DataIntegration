@@ -1,6 +1,6 @@
 FROM python:3.6
 EXPOSE 5000
-WORKDIR /app
-COPY . /app
+WORKDIR /api
+COPY . /api
 RUN pip install -r requirements.txt
-CMD python app.py
+CMD cd modules && python app.py

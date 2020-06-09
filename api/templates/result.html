@@ -7,8 +7,10 @@
 </head>
 <body>
 <h1>These are your results</h1>
+
     <p>{% if result is defined %}
     <a class="download_button" href="{{ url_for('static', filename= file)}}">Download</a>
+    <h3>The following variants in your input file have an alternate allele frequency of less than 1%: </h3>
     <div>
         <table>
           <thead>
