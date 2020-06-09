@@ -2,10 +2,10 @@ version: '3'
 
 services:
 
-  mysql-development:
+  database:
     image: mysql:8.0.17
     environment:
       MYSQL_ROOT_PASSWORD: helloworld
-      MYSQL_DATABASE: testapp
+      MYSQL_DATABASE: dnaVariance
     ports:
       - "3308:3306"

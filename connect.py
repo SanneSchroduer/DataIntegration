@@ -2,38 +2,59 @@
 import mysql.connector
 from mysql.connector import Error
 from mysql.connector import errorcode
+import vcf
 
-try:
-    connection = mysql.connector.connect(host='127.0.0.1',
-                                         port='3308',
-                                         database='testapp',
-                                         user='root',
-                                         password='helloworld',
-                                         auth_plugin='mysql_native_password')
 
-    mySql_insert_query = """INSERT INTO reference_nucleotide(Chromosome, Position, ID, Reference)
-                                    VALUES (18, 47348, 'rs126', 'C');"""
+def main():
+    read_data()
 
-    mySql_insert_query2 = """INSERT INTO variant(Position, Alternate, RFP, AlternateAlleleFrequency, VariantType, AlleleType)
-                                    VALUES (47348, 'CT', 0.9573, 0.00067423, 'mixed', 'ins');"""
 
-    cursor = connection.cursor()
-    cursor.execute(mySql_insert_query2)
-    connection.commit()
-    print(cursor.rowcount, "Record inserted successfully into gene_info table")
-    cursor.close()
+def read_data():
+    vcf_reader = vcf.Reader(open('data/chr18.vcf', 'r'))
 
-except mysql.connector.Error as error:
-    print("Failed to insert record into gene_info table {}".format(error))
+    for record in vcf_reader:
+        print(record.alleles)
+        chr = record.CHROM
+        id = record.ID
+        rfp = (record.INFO['rf_tp_probability'])
+        variant_type = (record.INFO['variant_type'])
+        allele_type = str((record.INFO['allele_type'])).strip('[]\'')
+        position = record.POS
+        reference = record.REF
+        alternate = str(record.ALT).strip('[]')
+        allele_frequency1 = str(record.INFO['AF']).strip('[]')
+        allele_frequency = float(allele_frequency1)
 
-"""
-mycursor = mydb.cursor()
+        referenceNucleotide = chr, position, id, reference
+        variant = alternate, rfp, allele_frequency, variant_type, allele_type
 
-sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
-val = ("David", "California")
-mycursor.execute(sql, val)
+        fill_db(referenceNucleotide, variant)
 
-mydb.commit()
 
-print(mycursor.rowcount, "record(s) inserted.")
-"""
+def fill_db(referenceNucleotide, variant):
+    try:
+        connection = mysql.connector.connect(host='127.0.0.1',
+                                            port='3308',
+                                            database='dnaVariance',
+                                            user='root',
+                                            password='helloworld',
+                                            auth_plugin='mysql_native_password')
+
+        sql = """INSERT INTO referenceNucleotide(Chromosome, Position, NuclID, Reference)
+                               VALUES (%s, %s, %s, %s);"""
+
+        sql2 = """INSERT INTO variant(alternate, rfp, alternateAlleleFrequency, variantType, alleleType)
+                                          VALUES (%s, %s, %s, %s, %s);"""
+
+        cursor = connection.cursor()
+        cursor.execute(sql, referenceNucleotide)
+        cursor.execute(sql2, variant)
+        connection.commit()
+        print(cursor.rowcount, "Record inserted successfully into table")
+        cursor.close()
+
+    except mysql.connector.Error as error:
+        print("Failed to insert record into table: {}".format(error))
+
+
+main()
