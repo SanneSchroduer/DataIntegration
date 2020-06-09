@@ -15,13 +15,11 @@ def get_result(filename):
 
     output_data = []
     try:
-        connection = mysql.connector.connect(host='127.0.0.1',
+        connection = mysql.connector.connect(host='database',
                                              port='3306',
                                              database='dnaVariants',
                                              user='root',
                                              password='helloworld')
-
-
 
         filepath = 'inbox/' + filename
         with open(filepath, 'r') as csv_file:
@@ -44,7 +42,6 @@ def get_result(filename):
                     connection.commit()
 
                     if record is not None:
-                        print(record)
                         output_data.append(row)
 
                     cursor.close()
@@ -60,7 +57,6 @@ def get_result(filename):
 
 def filter_malignant(output_data, filename):
 
-    print(output_data)
     out_filename = filename.split('.')[0]+'_malignant.'+filename.split('.')[1]
     out_file = 'static/'+out_filename
 

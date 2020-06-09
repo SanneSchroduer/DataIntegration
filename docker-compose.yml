@@ -11,10 +11,6 @@ services:
     volumes:
       - .:/database
     restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
   api:
     build: ./api
     depends_on:
@@ -25,10 +21,6 @@ services:
       - .:/api
     links:
       - database
-    environment:
-      - DB_HOST=database
-      - DB_PORT=3306
-
 networks:
   default:
     external:
