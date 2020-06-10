@@ -9,6 +9,9 @@ def main():
     read_data()
 
 def read_data():
+    """
+    This function reads all the files in the vcf_data folder and calls the fill_db function to fill the database with the data.
+    """
 
     vcf_files = []
     for file in os.listdir("../vcf_data"):
@@ -36,6 +39,11 @@ def read_data():
 
 
 def fill_db(referenceNucleotide, variant):
+    """
+    This function fills the referenceNucleotide and variant table, using the input parameters.
+    :param referenceNucleotide: tuple containing the chromosome, the position, the id and the reference nucleotide
+    :param variant: tuple containing the alternate nucleotide, the random forest prediction and the allele frequency
+    """
     try:
         connection = mysql.connector.connect(host='database',
                                              port='3306',
