@@ -6,65 +6,118 @@ import vcf
 
 
 def main():
+    # try:
+    #     make_tables()
+    # except mysql.connector.Error as error:
+    #     print("Parameterized query failed {}".format(error))
+    # finally:
+    #     if (connection.is_connected()):
+    #         connection.close()
+    #         print("MySQL connection is closed")
+
     read_data()
+
+# def make_tables():
+#     if connection:
+#         table_exists = """SELECT table_name
+#                           FROM information_schema.tables
+#                           WHERE table_schema = 'dnaVariants'
+#                           AND table_name LIKE %s"""
+#         cursor = connection.cursor(prepared=True)
+#         cursor.execute(table_exists, ('referenceNucleotide',))
+#         ref_table = cursor.fetchone()
+#
+#         if ref_table is None:
+#             create_ref_table = """CREATE TABLE referenceNucleotide (
+#                                   id int(255) PRIMARY KEY AUTO_INCREMENT,
+#                                   chromosome varchar(3),
+#                                   position int(5),
+#                                   nuclId varchar(255),
+#                                   reference varchar(255)
+#                                   );"""
+#             add_pk = """ALTER TABLE referenceNucleotide ADD INDEX (id);"""
+#             cursor.execute(create_ref_table)
+#             cursor.execute(add_pk)
+#
+#         cursor.execute(table_exists, ('variant',))
+#         var_table = cursor.fetchone()
+#         if var_table is None:
+#             create_var_table = """CREATE TABLE variant (
+#                                   id int(255) PRIMARY KEY AUTO_INCREMENT,
+#                                   alternate varchar(255),
+#                                   rfp         float(6),
+#                                   alternateAlleleFrequency float(10),
+#                                   );"""
+#             add_fk = """ALTER TABLE variant ADD FOREIGN KEY (id) REFERENCES referenceNucleotide (id);"""
+#             cursor.execute(create_var_table)
+#             cursor.execute(add_fk)
+#
+#         connection.commit()
+#         cursor.close()
 
 def read_data():
     """
     This function reads all the files in the vcf_data folder and calls the fill_db function to fill the database with the data.
     """
-
-    vcf_files = []
-    for file in os.listdir("../vcf_data"):
-        if file.endswith(".vcf"):
-            vcf_files.append(os.path.join("../vcf_data", file))
-
-    for file in vcf_files:
-        vcf_reader = vcf.Reader(open(file, 'r'))
-
-        for record in vcf_reader:
-            chr = record.CHROM
-            id = record.ID
-            rfp = (record.INFO['rf_tp_probability'])
-            variant_type = (record.INFO['variant_type'])
-            allele_type = str((record.INFO['allele_type'])).strip('[]\'')
-            position = record.POS
-            reference = record.REF
-            alternate = str(record.ALT).strip('[]')
-            allele_frequency = float(str(record.INFO['AF']).strip('[]'))
-
-            referenceNucleotide = chr, position, id, reference
-            variant = alternate, rfp, allele_frequency, variant_type, allele_type
-
-            fill_db(referenceNucleotide, variant)
-
-
-def fill_db(referenceNucleotide, variant):
-    """
-    This function fills the referenceNucleotide and variant table, using the input parameters.
-    :param referenceNucleotide: tuple containing the chromosome, the position, the id and the reference nucleotide
-    :param variant: tuple containing the alternate nucleotide, the random forest prediction and the allele frequency
-    """
     try:
         connection = mysql.connector.connect(host='database',
-                                             port='3306',
                                              database='dnaVariants',
                                              user='root',
-                                             password='helloworld')
-
-        sql = """INSERT INTO referenceNucleotide(Chromosome, Position, NuclID, Reference)
-                               VALUES (%s, %s, %s, %s);"""
-
-        sql2 = """INSERT INTO variant(alternate, rfp, alternateAlleleFrequency, variantType, alleleType)
-                                          VALUES (%s, %s, %s, %s, %s);"""
-
+                                             password='helloworld',
+                                             auth_plugin='mysql_native_password')
         cursor = connection.cursor()
-        cursor.execute(sql, referenceNucleotide)
-        cursor.execute(sql2, variant)
-        connection.commit()
-        print(cursor.rowcount, "Record inserted successfully into table")
-        cursor.close()
+
+        reference_ids = []
+        vcf_files = []
+        for file in os.listdir("../vcf_data"):
+            if file.endswith(".vcf"):
+                vcf_files.append(os.path.join("../vcf_data", file))
+
+        for file in vcf_files:
+            vcf_reader = vcf.Reader(open(file, 'r'))
+
+            for record in vcf_reader:
+                chr = record.CHROM
+                nuclId = record.ID
+                rfp = record.INFO['rf_tp_probability']
+                position = record.POS
+                reference = record.REF
+                alternate = str(record.ALT).strip('[]')
+                allele_frequency = float(str(record.INFO['AF']).strip('[]'))
+
+                # if the nuclId is not stored in the referenceNucleotide table, the reference is inserted
+                if nuclId not in reference_ids:
+                    reference_ids.append(nuclId)
+                    insert_ref = """INSERT INTO referenceNucleotide(Chromosome, Position, NuclID, Reference)
+                                  VALUES (%s, %s, %s, %s);"""
+                    referenceNucleotide = chr, position, nuclId, reference
+
+                    cursor.execute(insert_ref, referenceNucleotide)
+                    print('Inserting reference nucleotide with nuclId:', nuclId)
+
+                # selecting the id of the referenceNucleotide table that corresponds with the current nuclId
+                select_ref = """SELECT id from referenceNucleotide WHERE nuclId = %s"""
+                cursor.execute(select_ref, (nuclId,))
+                corresponding_id_tuple = cursor.fetchone()
+
+                if corresponding_id_tuple is not None:
+                    corresponding_id = int(corresponding_id_tuple[0])
+                    # inserting the current variant into the variant table with the corresponding id
+                    insert_var = """INSERT INTO variant(id, alternate, rfp, alternateAlleleFrequency)
+                                    VALUES (%s, %s, %s, %s);"""
+                    variant = corresponding_id, alternate, rfp, allele_frequency
+
+                    cursor.execute(insert_var, variant)
+                    print('Inserting variant nucleotide')
+
 
     except mysql.connector.Error as error:
         print("Failed to insert record into table: {}".format(error))
+    finally:
+        if (connection.is_connected()):
+            connection.commit()
+            connection.close()
+            print("MySQL connection is closed")
+
 
 main()
