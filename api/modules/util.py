@@ -32,15 +32,16 @@ def get_db_result(filename):
 
 
     if filename.split('.')[1] == 'csv':
-        output_data = parse_csv(filename)
+        output_data, unknown_variants = parse_csv(filename)
     # elif filename.split('.')[1] == 'vcf':
         # output_data = parse_vcf(filename)
         # unfortunately this does not work yet due to decode errors
 
-    return output_data
+    return output_data, unknown_variants
 
 def parse_csv(filename):
     output_data = []
+    unknown_variants = []
     try:
         connection = mysql.connector.connect(host='database',
                                              port='3306',
@@ -80,6 +81,22 @@ def parse_csv(filename):
 
                     if record is not None:
                         output_data.append(row)
+                    elif record is None:
+                        select_id = """SELECT r.chromosome, r.position, r.reference, v.alternate
+                                FROM referenceNucleotide r
+                                INNER JOIN variant v
+                                ON r.id = v.id
+                                WHERE chromosome = %s
+                                AND position = %s
+                                AND reference = %s
+                                AND alternate = %s"""
+                        condition_select_id = [chr, position, reference, alternate]
+                        cursor.execute(select_id, (condition_select_id))
+                        reference = cursor.fetchone()
+                        connection.commit()
+
+                        if reference is None:
+                            unknown_variants.append(row)
 
                     cursor.close()
 
@@ -89,10 +106,11 @@ def parse_csv(filename):
     except mysql.connector.Error as error:
         print("Error {}".format(error))
 
-    return output_data
+    return output_data, unknown_variants
 
 def parse_vcf(filename):
     output_data = []
+    unknown_variants = []
     try:
         connection = mysql.connector.connect(host='database',
                                              port='3306',
@@ -130,6 +148,22 @@ def parse_vcf(filename):
 
                 if record is not None:
                     output_data.append(record)
+                elif record is None:
+                    select_id = """"SELECT r.chromosome, r.position, r.reference, v.alternate
+                            FROM referenceNucleotide r
+                            INNER JOIN variant v
+                            ON r.id = v.id
+                            WHERE chromosome = %s
+                            AND position = %s
+                            AND reference = %s
+                            AND alternate = %s"""
+                    condition_select_id = [chr, position, reference, alternate]
+                    cursor.execute(select_id, (condition_select_id))
+                    reference = cursor.fetchone()
+                    connection.commit()
+
+                    if reference is None:
+                        unknown_variants.append(row)
 
                 cursor.close()
 
@@ -141,9 +175,9 @@ def parse_vcf(filename):
             connection.close()
             print("MySQL connection is closed")
 
-    return output_data
+    return output_data, unknown_variants
 
-def write_output(output_data, filename):
+def write_output(output_data, unknown_variants, filename):
     """
     This function writes the variants with less than 1% alternative frequency and 0% non cancer frequency in
     the non output_data list to an output file.
@@ -153,12 +187,19 @@ def write_output(output_data, filename):
     - out_filename: the name of the file in which the malignant variants are saved
     """
 
-    out_filename = filename.split('.')[0]+'_malignant.'+filename.split('.')[1]
-    out_file = '../static/'+out_filename
+    out_file_hits = '../static/'+filename.split('.')[0]+'_malignant.'+filename.split('.')[1]
 
-    with open(out_file, "w") as csv_file:
+
+    with open(out_file_hits, "w") as csv_file:
         csv_writer = csv.writer(csv_file, dialect = 'excel')
         for row in output_data:
             csv_writer.writerow(row)
 
-    return out_filename
+    out_file_unknown = '../static/'+filename.split('.')[0] + '_unknown.' + filename.split('.')[1]
+
+    with open(out_file_unknown, "w") as csv_file:
+        csv_writer = csv.writer(csv_file, dialect='excel')
+        for row in unknown_variants:
+            csv_writer.writerow(row)
+
+    return out_file_hits, out_file_unknown

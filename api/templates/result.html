@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<!--     <link href="../static/result.css" rel="stylesheet">-->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='result.css') }}">
     <title>Result</title>
 </head>
@@ -10,8 +9,9 @@
 <h1>These are your results</h1>
 
     <p>{% if result is defined %}
-    <a class="download_button" href="{{ url_for('static', filename= file)}}">Download</a>
-    <h3>The following variants in your input file have an alternate allele frequency of less than 1% or are present in cancer patients: </h3>
+    <h3>The following variants in your input file have an allele frequency of less than 1% or are present in cancer patients: </h3>
+    <a class="download_button" href="{{ url_for('static', filename= file_hits)}}">Download</a>
+    <hr>
     <div>
         <table>
           <thead>
@@ -27,6 +27,40 @@
           <tbody>
 
              {% for variant in result %}
+            <tr class="tableover">
+                <td>{{variant[0]}}</td>
+                <td>{{variant[1]}}</td>
+                <td>{{variant[2]}}</td>
+                <td>{{variant[3]}}</td>
+                <td>{{variant[4]}}</td>
+                <td>{{variant[9].split('=')[1]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    {% endif %}
+    </div>
+    </p>
+
+    <p>{% if unknown is defined %}
+    <h3>The following variants in your input file are not present in the database: </h3>
+    <a class="download_button" href="{{ url_for('static', filename= file_unknown)}}">Download</a>
+    <hr>
+    <div>
+        <table>
+          <thead>
+            <tr class="header">
+                <th>Chromosome</th>
+                <th>Position</th>
+                <th>Id</th>
+                <th>Ref</th>
+                <th>Alt</th>
+                <th>Alternative Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+
+             {% for variant in unknown %}
             <tr class="tableover">
                 <td>{{variant[0]}}</td>
                 <td>{{variant[1]}}</td>

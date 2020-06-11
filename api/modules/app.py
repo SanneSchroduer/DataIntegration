@@ -41,9 +41,9 @@ def result(filename):
     :param filename: the name of the input file (string)
     :return: renders template for the result page, provides output_data (list) and out_file (name of the output file)
     """
-    output_data = get_db_result(filename)
-    out_file = write_output(output_data, filename)
-    return render_template('result.html', result=output_data, file=out_file)
+    output_data, unknown_variants = get_db_result(filename)
+    out_file_hits, out_file_unknown = write_output(output_data, unknown_variants, filename)
+    return render_template('result.html', result=output_data, unknown=unknown_variants, file_hits=out_file_hits, file_unknown=out_file_unknown)
 
 
 if __name__ == '__main__':
