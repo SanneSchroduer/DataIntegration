@@ -37,9 +37,9 @@ def home():
 @app.route('/result/<filename>')
 def result(filename):
     """
-    App route that calls of the functions that compare the input data against the database and write the output data to a file.
+    App route that calls of the functions that compares the input data against the database and writes the malignant and unknown variants both to a file.
     :param filename: the name of the input file (string)
-    :return: renders template for the result page, provides output_data (list) and out_file (name of the output file)
+    :return: renders template for the result page
     """
     output_data, unknown_variants = get_db_result(filename)
     out_file_hits, out_file_unknown = write_output(output_data, unknown_variants, filename)
