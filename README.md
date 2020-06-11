@@ -17,6 +17,8 @@ The application can be started using the following commands:
 
     ```docker exec -it [ID of database container] /bin/bash```
     
+    ```cd modules```
+    
     ```python init_database.py```
     
 4. Go back to the terminal where the containers are running and click on the link of the Flask application.

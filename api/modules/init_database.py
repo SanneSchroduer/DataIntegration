@@ -6,54 +6,64 @@ import vcf
 
 
 def main():
-    # try:
-    #     make_tables()
-    # except mysql.connector.Error as error:
-    #     print("Parameterized query failed {}".format(error))
-    # finally:
-    #     if (connection.is_connected()):
-    #         connection.close()
-    #         print("MySQL connection is closed")
-
+    make_tables()
     read_data()
 
-# def make_tables():
-#     if connection:
-#         table_exists = """SELECT table_name
-#                           FROM information_schema.tables
-#                           WHERE table_schema = 'dnaVariants'
-#                           AND table_name LIKE %s"""
-#         cursor = connection.cursor(prepared=True)
-#         cursor.execute(table_exists, ('referenceNucleotide',))
-#         ref_table = cursor.fetchone()
-#
-#         if ref_table is None:
-#             create_ref_table = """CREATE TABLE referenceNucleotide (
-#                                   id int(255) PRIMARY KEY AUTO_INCREMENT,
-#                                   chromosome varchar(3),
-#                                   position int(5),
-#                                   nuclId varchar(255),
-#                                   reference varchar(255)
-#                                   );"""
-#             add_pk = """ALTER TABLE referenceNucleotide ADD INDEX (id);"""
-#             cursor.execute(create_ref_table)
-#             cursor.execute(add_pk)
-#
-#         cursor.execute(table_exists, ('variant',))
-#         var_table = cursor.fetchone()
-#         if var_table is None:
-#             create_var_table = """CREATE TABLE variant (
-#                                   id int(255) PRIMARY KEY AUTO_INCREMENT,
-#                                   alternate varchar(255),
-#                                   rfp         float(6),
-#                                   alternateAlleleFrequency float(10),
-#                                   );"""
-#             add_fk = """ALTER TABLE variant ADD FOREIGN KEY (id) REFERENCES referenceNucleotide (id);"""
-#             cursor.execute(create_var_table)
-#             cursor.execute(add_fk)
-#
-#         connection.commit()
-#         cursor.close()
+def make_tables():
+    """
+    This functions checks if the referenceNucleotide table and variant table already exist.
+    If not, these tables are created.
+    :return:
+    """
+
+    try:
+        connection = mysql.connector.connect(host='database',
+                                             database='dnaVariants',
+                                             user='root',
+                                             password='helloworld',
+                                             auth_plugin='mysql_native_password')
+        if connection:
+            table_exists = """SELECT table_name
+                              FROM information_schema.tables
+                              WHERE table_schema = 'dnaVariants'
+                              AND table_name LIKE %s"""
+            cursor = connection.cursor(prepared=True)
+            cursor.execute(table_exists, ('referenceNucleotide',))
+            ref_table = cursor.fetchone()
+
+            if ref_table is None:
+                create_ref_table = """CREATE TABLE referenceNucleotide (
+                                      id int(255) PRIMARY KEY AUTO_INCREMENT,
+                                      chromosome varchar(3),
+                                      position int(5),
+                                      nuclId varchar(255),
+                                      reference varchar(255)
+                                      );"""
+                add_pk = """ALTER TABLE referenceNucleotide ADD INDEX (id);"""
+                cursor.execute(create_ref_table)
+                cursor.execute(add_pk)
+
+            cursor.execute(table_exists, ('variant',))
+            var_table = cursor.fetchone()
+            if var_table is None:
+                create_var_table = """CREATE TABLE variant (
+                                      id int(255),
+                                      alternate varchar(255),
+                                      rfp float(6),
+                                      alternateAlleleFrequency float(10),
+                                      nonCancerFrequency float(10)
+                                      );"""
+                add_fk = """ALTER TABLE variant ADD FOREIGN KEY (id) REFERENCES referenceNucleotide (id);"""
+                cursor.execute(create_var_table)
+                cursor.execute(add_fk)
+
+    except mysql.connector.Error as error:
+        print("Failed to insert record into table: {}".format(error))
+    finally:
+        if (connection.is_connected()):
+            connection.commit()
+            connection.close()
+            print("MySQL connection is closed")
 
 def read_data():
     """
@@ -65,7 +75,7 @@ def read_data():
                                              user='root',
                                              password='helloworld',
                                              auth_plugin='mysql_native_password')
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
 
         reference_ids = []
         vcf_files = []
@@ -83,7 +93,13 @@ def read_data():
                 position = record.POS
                 reference = record.REF
                 alternate = str(record.ALT).strip('[]')
-                allele_frequency = float(str(record.INFO['AF']).strip('[]'))
+                allele_frequency = record.INFO['AF'][0]
+
+
+                if 'non_cancer_AF' in record.INFO:
+                    non_cancer_frequency = record.INFO['non_cancer_AF'][0]
+                else:
+                    non_cancer_frequency = None
 
                 # if the nuclId is not stored in the referenceNucleotide table, the reference is inserted
                 if nuclId not in reference_ids:
@@ -103,9 +119,9 @@ def read_data():
                 if corresponding_id_tuple is not None:
                     corresponding_id = int(corresponding_id_tuple[0])
                     # inserting the current variant into the variant table with the corresponding id
-                    insert_var = """INSERT INTO variant(id, alternate, rfp, alternateAlleleFrequency)
-                                    VALUES (%s, %s, %s, %s);"""
-                    variant = corresponding_id, alternate, rfp, allele_frequency
+                    insert_var = """INSERT INTO variant(id, alternate, rfp, alternateAlleleFrequency, nonCancerFrequency)
+                                    VALUES (%s, %s, %s, %s, %s);"""
+                    variant = corresponding_id, alternate, rfp, allele_frequency, non_cancer_frequency
 
                     cursor.execute(insert_var, variant)
                     print('Inserting variant nucleotide')

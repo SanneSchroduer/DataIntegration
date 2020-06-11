@@ -5,4 +5,4 @@ Jinja2==2.11.2
 MarkupSafe==1.1.1
 PyVCF==0.6.8
 Werkzeug==1.0.1
-mysql-connector-python==8.0.20
+mysql-connector-python==8.0.17

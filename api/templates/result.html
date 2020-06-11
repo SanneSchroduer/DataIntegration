@@ -11,7 +11,7 @@
 
     <p>{% if result is defined %}
     <a class="download_button" href="{{ url_for('static', filename= file)}}">Download</a>
-    <h3>The following variants in your input file have an alternate allele frequency of less than 1%: </h3>
+    <h3>The following variants in your input file have an alternate allele frequency of less than 1% or are present in cancer patients: </h3>
     <div>
         <table>
           <thead>
@@ -21,7 +21,7 @@
                 <th>Id</th>
                 <th>Ref</th>
                 <th>Alt</th>
-                <th>Frequency</th>
+                <th>Alternative Frequency</th>
             </tr>
           </thead>
           <tbody>

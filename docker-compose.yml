@@ -1,15 +1,13 @@
 version: '3'
 services:
   database:
-    build: ./database
+    image: mysql:8.0.17
     environment:
       MYSQL_DATABASE: dnaVariants
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: helloworld
     ports:
       - "3306:3306"
-    volumes:
-      - /database:/database
     restart: always
   api:
     build: ./api
