@@ -15,7 +15,7 @@ The services can be started using the following commands:
 1. Create a docker network, make sure you add your network to the docker-compose file.
     ```docker network create [network name]```
 
-2. Build the containters:
+2. Build the containers:
 
     ```docker-compose up --build``` 
 
