@@ -4,8 +4,13 @@ This application can be used to compare DNA variants against a database with kno
 The database can be created from chosen VCF files, containing variants per chromosome.
 Created on: 14-04-2020
 
+
+## About the application
+This application consists of two Docker services: an API and a database container.
+The API container is build using the api folder, the database is build from a MySQL image.
+ 
 ## Run the application for the first time
-The application can be started using the following commands:
+The services can be started using the following commands:
 
 1. Create a docker network, make sure you add your network to the docker-compose file.
     ```docker network create [network name]```
